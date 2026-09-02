@@ -11,6 +11,33 @@ import { ScanStore } from '../store/scanStore.js';
 
 const SAFE_NAME = /^[\w .-]{1,120}$/;
 
+/**
+ * Minimal in-process rate limiter: scans spawn model processes and write to
+ * disk, so the start endpoints must not be callable in an unbounded loop.
+ */
+export function createRateLimit({ windowMs = 60_000, max = 10 } = {}) {
+  const hits = new Map();
+  return (req, res, next) => {
+    const now = Date.now();
+    const key = req.ip ?? 'unknown';
+    const entry = hits.get(key);
+    if (!entry || now - entry.start > windowMs) {
+      hits.set(key, { start: now, count: 1 });
+    } else if (entry.count >= max) {
+      res.setHeader('Retry-After', Math.ceil((entry.start + windowMs - now) / 1000));
+      return res.status(429).json({ error: 'Too many scan requests, please slow down' });
+    } else {
+      entry.count += 1;
+    }
+    if (hits.size > 5000) {
+      for (const [id, value] of hits) {
+        if (now - value.start > windowMs) hits.delete(id);
+      }
+    }
+    return next();
+  };
+}
+
 export function serializeScan(scan) {
   if (!scan) return null;
   const { _auditors, _consolidator, report, sourceRoot, reportPath, source, ...rest } = scan;
@@ -23,8 +50,10 @@ export function serializeScan(scan) {
 
 export function createApp({ store = new ScanStore(), engine = config.engine, workspaceDir = config.workspaceDir } = {}) {
   const app = express();
+  const uploadDir = path.join(os.tmpdir(), 'm3as-uploads');
+  const scanRateLimit = createRateLimit({ windowMs: 60_000, max: Number(process.env.M3AS_RATE_LIMIT ?? 10) });
   const upload = multer({
-    dest: path.join(os.tmpdir(), 'm3as-uploads'),
+    dest: uploadDir,
     limits: { fileSize: config.maxUploadBytes, files: 1 },
     fileFilter: (_req, file, callback) => {
       const isZip = file.mimetype === 'application/zip'
@@ -126,7 +155,7 @@ export function createApp({ store = new ScanStore(), engine = config.engine, wor
     return [];
   };
 
-  app.post('/api/scans/repo', (req, res) => {
+  app.post('/api/scans/repo', scanRateLimit, (req, res) => {
     const { repoUrl, branch, targetName } = req.body ?? {};
     let parsed;
     try {
@@ -152,19 +181,23 @@ export function createApp({ store = new ScanStore(), engine = config.engine, wor
     );
   });
 
-  app.post('/api/scans/zip', upload.single('archive'), async (req, res) => {
+  app.post('/api/scans/zip', scanRateLimit, upload.single('archive'), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'A .zip archive is required' });
+    // Re-anchor the multer temp file inside the upload directory: only its
+    // basename is trusted, so no user-controlled path can escape.
+    const archivePath = path.join(uploadDir, path.basename(req.file.path));
+    const originalName = path.basename(String(req.file.originalname ?? 'upload.zip')).slice(0, 120);
     const targetName = req.body?.targetName;
     if (targetName !== undefined && targetName !== '' && !SAFE_NAME.test(String(targetName))) {
-      await fsp.rm(req.file.path, { force: true });
+      await fsp.rm(archivePath, { force: true });
       return res.status(400).json({ error: 'Invalid target name' });
     }
     return start(
       {
         type: 'zip',
-        reference: path.basename(req.file.originalname).slice(0, 120),
-        archivePath: req.file.path,
-        targetName: targetName || path.basename(req.file.originalname, '.zip').slice(0, 120) || 'the target',
+        reference: originalName,
+        archivePath,
+        targetName: targetName || path.basename(originalName, '.zip') || 'the target',
       },
       parseModelIds(req.body?.models),
       res,

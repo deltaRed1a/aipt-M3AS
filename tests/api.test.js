@@ -3,7 +3,7 @@ import test from 'node:test';
 import fsp from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { createApp } from '../src/server/app.js';
+import { createApp, createRateLimit } from '../src/server/app.js';
 import { ScanStore } from '../src/store/scanStore.js';
 
 async function withServer(run) {
@@ -96,4 +96,20 @@ test('POST /api/scans/zip runs a full scan and serves the report', async () => {
     assert.equal(report.status, 200);
     assert.match(await report.text(), /M3AS Security & RAI Audit/);
   });
+});
+
+test('scan start endpoints are rate limited', async () => {
+  const limit = createRateLimit({ windowMs: 60_000, max: 2 });
+  const calls = [];
+  const res = {
+    setHeader() {},
+    status(code) {
+      calls.push(code);
+      return { json() {} };
+    },
+  };
+  let allowed = 0;
+  for (let i = 0; i < 4; i += 1) limit({ ip: '1.2.3.4' }, res, () => { allowed += 1; });
+  assert.equal(allowed, 2);
+  assert.deepEqual(calls, [429, 429]);
 });

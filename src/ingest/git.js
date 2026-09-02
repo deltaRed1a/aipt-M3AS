@@ -1,8 +1,9 @@
 import { spawn } from 'node:child_process';
 
+const GITHUB_HOSTS = new Set(['github.com', 'www.github.com']);
+
 const ALLOWED_HOSTS = new Set([
-  'github.com',
-  'www.github.com',
+  ...GITHUB_HOSTS,
   'dev.azure.com',
   'ssh.dev.azure.com',
 ]);
@@ -36,7 +37,7 @@ export function parseRepoUrl(rawUrl) {
   if (url.username || url.password) {
     throw new Error('Credentials embedded in the repository URL are not allowed');
   }
-  const provider = url.hostname.endsWith('github.com') ? 'github' : 'ado';
+  const provider = GITHUB_HOSTS.has(url.hostname) ? 'github' : 'ado';
   return { url: url.toString(), provider, host: url.hostname, path: url.pathname };
 }
 

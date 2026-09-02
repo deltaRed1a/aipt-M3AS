@@ -81,6 +81,7 @@ Each entry supports `id`, `label`, `cliModel`, `contextWindow`, `reasoning`, `en
 | `M3AS_MODEL_TIMEOUT_MS` | `1200000` | Per-model timeout |
 | `M3AS_MAX_UPLOAD_BYTES` | `209715200` | Max ZIP upload size |
 | `M3AS_MAX_EXTRACTED_BYTES` | `1073741824` | Max extracted size (zip-bomb guard) |
+| `M3AS_RATE_LIMIT` | `10` | Scan starts allowed per client IP per minute |
 | `GITHUB_TOKEN` / `ADO_PAT` | – | Optional credentials for private repositories |
 
 ## Security notes
