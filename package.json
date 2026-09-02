@@ -1,0 +1,20 @@
+{
+  "name": "aipt-m3as",
+  "version": "1.0.0",
+  "description": "Multi Modal Multi Agent Secure Source Code Scanner",
+  "main": "src/server/index.js",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "start": "node src/server/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "multer": "^2.3.0",
+    "yauzl": "^3.4.0"
+  }
+}
