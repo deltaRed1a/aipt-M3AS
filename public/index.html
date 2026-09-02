@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>M3AS // Multi-Model Multi-Agent Secure Source Scanner</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="grid-overlay" aria-hidden="true"></div>
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo">M3AS</span>
+        <span class="tagline">Multi&nbsp;Modal · Multi&nbsp;Agent · Secure Source Code Scanner</span>
+      </div>
+      <div class="engine-badge" id="engine-badge">engine: …</div>
+    </header>
+
+    <main>
+      <section class="panel" aria-labelledby="ingest-title">
+        <h2 id="ingest-title">01 // Target Acquisition</h2>
+        <div class="tabs" role="tablist">
+          <button class="tab active" role="tab" data-tab="github" aria-selected="true">GitHub Repo</button>
+          <button class="tab" role="tab" data-tab="ado" aria-selected="false">ADO Repo</button>
+          <button class="tab" role="tab" data-tab="zip" aria-selected="false">ZIP Upload</button>
+        </div>
+
+        <form id="repo-form" class="tab-panel" data-panel="github">
+          <label for="repo-url">Repository URL</label>
+          <input id="repo-url" name="repoUrl" type="url" placeholder="https://github.com/org/repo" required />
+          <label for="repo-branch">Branch <span class="muted">(optional)</span></label>
+          <input id="repo-branch" name="branch" type="text" placeholder="main" />
+          <button class="cta" type="submit">Initiate Scan</button>
+        </form>
+
+        <form id="zip-form" class="tab-panel hidden" data-panel="zip">
+          <label for="zip-file">Source archive (.zip)</label>
+          <input id="zip-file" name="archive" type="file" accept=".zip,application/zip" required />
+          <label for="zip-name">Target name <span class="muted">(optional)</span></label>
+          <input id="zip-name" name="targetName" type="text" placeholder="AICT Application" />
+          <button class="cta" type="submit">Initiate Scan</button>
+        </form>
+
+        <p class="error" id="form-error" role="alert" hidden></p>
+      </section>
+
+      <section class="panel" aria-labelledby="models-title">
+        <h2 id="models-title">02 // Model Fleet</h2>
+        <p class="muted small">Deselect a model to exclude it from this scan. Add or swap models in <code>config/models.json</code>.</p>
+        <ul class="model-list" id="model-list"></ul>
+        <div class="consolidator" id="consolidator"></div>
+      </section>
+
+      <section class="panel wide" aria-labelledby="status-title">
+        <h2 id="status-title">03 // Live Telemetry</h2>
+        <div class="status-line"><span class="status-chip" id="scan-status">idle</span><span id="scan-target" class="muted"></span></div>
+        <ul class="progress-list" id="progress-list"></ul>
+      </section>
+
+      <section class="panel wide" aria-labelledby="findings-title">
+        <h2 id="findings-title">04 // Consolidated Master Findings</h2>
+        <div class="summary" id="summary"></div>
+        <div class="actions"><a class="cta ghost hidden" id="download-report" download>Download Markdown Report</a></div>
+        <div id="findings"></div>
+      </section>
+    </main>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>

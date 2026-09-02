@@ -1,0 +1,85 @@
+{
+  "auditors": [
+    {
+      "id": "gpt-5.6-sol",
+      "label": "GPT-5.6 Sol",
+      "cliModel": "gpt-5.6-sol",
+      "contextWindow": "1M",
+      "reasoning": "max",
+      "cliArgs": [],
+      "enabled": true
+    },
+    {
+      "id": "gpt-5.6-terra",
+      "label": "GPT-5.6 Terra",
+      "cliModel": "gpt-5.6-terra",
+      "contextWindow": "1M",
+      "reasoning": "max",
+      "cliArgs": [],
+      "enabled": true
+    },
+    {
+      "id": "gpt-5.5",
+      "label": "GPT-5.5",
+      "cliModel": "gpt-5.5",
+      "contextWindow": "1M",
+      "reasoning": "max",
+      "cliArgs": [],
+      "enabled": true
+    },
+    {
+      "id": "claude-opus-5",
+      "label": "Claude Opus 5",
+      "cliModel": "claude-opus-5",
+      "contextWindow": "1M",
+      "reasoning": "max",
+      "cliArgs": [],
+      "enabled": true
+    },
+    {
+      "id": "claude-opus-4.8",
+      "label": "Claude Opus 4.8",
+      "cliModel": "claude-opus-4.8",
+      "contextWindow": "1M",
+      "reasoning": "max",
+      "cliArgs": [],
+      "enabled": true
+    },
+    {
+      "id": "claude-sonnet-5",
+      "label": "Claude Sonnet 5",
+      "cliModel": "claude-sonnet-5",
+      "contextWindow": "1M",
+      "reasoning": "max",
+      "cliArgs": [],
+      "enabled": true
+    },
+    {
+      "id": "grok-4.6",
+      "label": "Grok 4.6",
+      "cliModel": "grok-4.6",
+      "contextWindow": "425K",
+      "reasoning": "xhigh",
+      "cliArgs": [],
+      "enabled": true
+    },
+    {
+      "id": "gemini-3.5-flash",
+      "label": "Gemini 3.5 Flash",
+      "cliModel": "gemini-3.5-flash",
+      "contextWindow": "1M",
+      "reasoning": "high",
+      "cliArgs": [],
+      "enabled": true
+    }
+  ],
+  "consolidator": {
+    "id": "claude-opus-4.8-consolidator",
+    "label": "Claude Opus 4.8 (Consolidator)",
+    "cliModel": "claude-opus-4.8",
+    "contextWindow": "1M",
+    "reasoning": "max",
+    "cliArgs": [],
+    "enabled": true
+  }
+}
